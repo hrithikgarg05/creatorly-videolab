@@ -157,7 +157,7 @@ Be specific and actionable. Reference what you actually see in the frames. Use t
 async function analyseWithGemini(ffmpegData, caption, hashtags, niche) {
   console.log('🤖 Starting Gemini Vision analysis...');
 
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
 
   const imageParts = ffmpegData.framePaths
     .filter(p => fs.existsSync(p))
