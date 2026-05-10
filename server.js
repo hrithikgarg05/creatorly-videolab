@@ -84,6 +84,10 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'Creatorly Video Lab API', timestamp: new Date().toISOString() });
 });
 
+app.get('/', (req, res) => {
+  res.json({ status: 'ok', message: 'Video Lab API is running' });
+});
+
 // ─── Main Analysis Endpoint ───────────────────────────────────────────────────
 app.post('/api/analyse', upload.single('video'), async (req, res) => {
   const videoPath = req.file?.path;
