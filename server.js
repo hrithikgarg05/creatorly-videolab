@@ -159,7 +159,7 @@ app.use((err, req, res, next) => {
   res.status(400).json({ error: err.message });
 });
 
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, () => {
   console.log(`\n🚀 Creatorly Video Lab API running on port ${PORT}`);
   console.log(`   Gemini API Key: ${process.env.GEMINI_API_KEY ? '✅ Set' : '❌ MISSING'}`);
 });
