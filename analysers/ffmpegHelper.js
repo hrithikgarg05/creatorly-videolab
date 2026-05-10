@@ -1,6 +1,11 @@
 const ffmpeg = require('fluent-ffmpeg');
+const ffmpegStatic = require('ffmpeg-static');
+const ffprobeStatic = require('ffprobe-static');
 const fs = require('fs');
 const path = require('path');
+
+ffmpeg.setFfmpegPath(ffmpegStatic);
+ffmpeg.setFfprobePath(ffprobeStatic.path);
 
 // ─── Get Video Metadata ───────────────────────────────────────────────────────
 function getVideoInfo(videoPath) {
