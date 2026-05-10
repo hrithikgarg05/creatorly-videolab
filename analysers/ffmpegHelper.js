@@ -30,7 +30,7 @@ function getVideoInfo(videoPath) {
 
 // ─── Extract Key Frames ───────────────────────────────────────────────────────
 // Extract 6 frames: 0s, 1s, 3s, 25%, 50%, 90% of duration
-function extractFrames(videoPath, duration, outputDir) {
+async function extractFrames(videoPath, duration, outputDir) {
   const timestamps = [
     0,                              // very first frame
     1,                              // 1 second in (hook)
@@ -42,24 +42,25 @@ function extractFrames(videoPath, duration, outputDir) {
 
   const framePaths = timestamps.map((_, i) => path.join(outputDir, `frame_${i}.jpg`));
 
-  return Promise.all(
-    timestamps.map((ts, i) =>
-      new Promise((resolve, reject) => {
-        ffmpeg(videoPath)
-          .screenshots({
-            timestamps: [ts],
-            filename: `frame_${i}.jpg`,
-            folder: outputDir,
-            size: '720x?', // maintain aspect ratio, max 720px wide
-          })
-          .on('end', () => resolve(framePaths[i]))
-          .on('error', (err) => {
-            console.warn(`Frame ${i} extraction failed:`, err.message);
-            resolve(null); // Don't fail the whole analysis for one frame
-          });
-      })
-    )
-  );
+  for (let i = 0; i < timestamps.length; i++) {
+    const ts = timestamps[i];
+    await new Promise((resolve) => {
+      ffmpeg(videoPath)
+        .screenshots({
+          timestamps: [ts],
+          filename: `frame_${i}.jpg`,
+          folder: outputDir,
+          size: '720x?', // maintain aspect ratio, max 720px wide
+        })
+        .on('end', () => resolve())
+        .on('error', (err) => {
+          console.warn(`Frame ${i} extraction failed:`, err.message);
+          resolve(); // Don't fail the whole analysis for one frame
+        });
+    });
+  }
+
+  return framePaths;
 }
 
 // ─── Scene Change Detection ───────────────────────────────────────────────────
@@ -168,24 +169,19 @@ function getVideoStats(videoPath) {
 async function runFfmpegAnalysis(videoPath, framesOutputDir) {
   console.log('🎬 Starting ffmpeg analysis...');
 
-  const [info, scenes, loudness, silence, videoStats] = await Promise.all([
-    getVideoInfo(videoPath),
-    detectSceneChanges(videoPath),
-    getVideoInfo(videoPath).then(i => i.hasAudio ? getAudioLoudness(videoPath) : Promise.resolve({})),
-    getVideoInfo(videoPath).then(i => i.hasAudio ? detectSilence(videoPath, i.duration) : Promise.resolve({ gaps: [], totalSilenceSecs: 0, silencePercent: 0, deadAirCount: 0 })),
-    getVideoStats(videoPath),
-  ]);
-
-  // Recalculate loudness properly
-  const [loudnessReal, silenceReal] = await Promise.all([
-    info.hasAudio ? getAudioLoudness(videoPath) : Promise.resolve({ inputI: null, inputTP: null }),
-    info.hasAudio ? detectSilence(videoPath, info.duration) : Promise.resolve({ gaps: [], totalSilenceSecs: 0, silencePercent: 0, deadAirCount: 0 }),
-  ]);
+  const info = await getVideoInfo(videoPath);
+  const scenes = await detectSceneChanges(videoPath);
+  const loudnessReal = info.hasAudio ? await getAudioLoudness(videoPath) : { inputI: null, inputTP: null };
+  const silenceReal = info.hasAudio ? await detectSilence(videoPath, info.duration) : { gaps: [], totalSilenceSecs: 0, silencePercent: 0, deadAirCount: 0 };
+  const videoStats = await getVideoStats(videoPath);
 
   // Extract frames
   fs.mkdirSync(framesOutputDir, { recursive: true });
   const framePaths = await extractFrames(videoPath, info.duration, framesOutputDir);
-  const validFrames = framePaths.filter(f => f && fs.existsSync(f));
+  const validFrames = framePaths.filter(f => {
+    if (!f || !fs.existsSync(f)) return false;
+    return fs.statSync(f).size > 0;
+  });
 
   // Calculate pacing metrics
   const cutsPerMinute = info.duration > 0 ? (scenes.length / info.duration) * 60 : 0;
