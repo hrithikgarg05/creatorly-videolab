@@ -15,14 +15,16 @@ function imageToGeminiPart(filePath, mimeType = 'image/jpeg') {
 }
 
 function buildVideoPrompt(computed, caption, hashtags, niche) {
-  return `You are a world-class TikTok and Instagram Reels Strategist. Your job is to deeply analyze the provided video frames and metadata to predict its viral potential. Do NOT give basic, generic advice (e.g., "show your face", "add cuts"). I need sophisticated, advanced content strategy.
+  return `You are a world-class TikTok and Instagram Reels Strategist. Your job is to deeply analyze the provided video frames and metadata to predict its viral potential. Do NOT give basic, generic advice (e.g., "show your face", "add cuts"). I need sophisticated, advanced content strategy adapted to the specific niche.
 
 ### VIRAL CONTENT PLAYBOOK & RULES
-1. **The Hook (0-3s):** Is there a visual pattern interrupt? Does the first frame create a 'Curiosity Gap'? Are they using a bold statement or visual anomaly?
-2. **Retention Mechanics:** A viral video must have high 'Value Density' (no fluff). It should use pacing changes to reset the viewer's attention span.
-3. **Loopability:** Does the ending seamlessly transition back to the beginning?
-4. **Authenticity over Polish:** Sometimes, raw/lo-fi videos go viral faster than highly edited ones if the storytelling is authentic and relatable. Do not penalize "lower quality" visuals if the content is highly engaging or relatable.
-5. **The Algorithm:** The algorithm rewards watch time, shares, and saves. Does this video evoke an emotion (funny, controversial, educational, relatable) that makes someone want to share it with a friend?
+1. **NICHE CONTEXT IS KING:** The target niche is "${niche || 'General'}". YOU MUST ADAPT YOUR CRITERIA TO THIS NICHE!
+   - If the niche is "Nature", "Aesthetic", or "Cinematic", DO NOT penalize for lacking a human face, fast cuts, or text overlays. Instead, grade based on visual majesty, color grading, and atmospheric audio.
+   - If the niche is "Talking Head" or "Educational", grade heavily on pattern interrupts, text hook clarity, and pacing.
+2. **The Hook (0-3s):** Is there a visual pattern interrupt or curiosity gap relevant to the niche?
+3. **Retention Mechanics:** A viral video must have high 'Value Density' (no fluff).
+4. **Authenticity over Polish:** Sometimes, raw/lo-fi videos go viral faster than highly edited ones.
+5. **The Algorithm:** Does this video evoke an emotion that makes someone want to share or save it?
 
 ### TECHNICAL DATA
 - Duration: ${computed.videoInfo?.duration?.toFixed(1)}s
@@ -30,63 +32,63 @@ function buildVideoPrompt(computed, caption, hashtags, niche) {
 - Average shot length: ${computed.computed.avgShotLength}s
 - Loudness: ${computed.computed.loudnessLUFS ?? 'N/A'} LUFS
 - Silence/Dead air gaps (>2s): ${computed.computed.silenceGaps}
-- Total silence: ${computed.computed.silencePercent}% of video
 - Format: ${computed.computed.aspectRatio} — ${computed.computed.isVertical ? 'VERTICAL' : 'NOT VERTICAL'}
 
 ### CREATOR METADATA
-- Caption: "${caption || '(no caption provided)'}"
-- Hashtags: "${hashtags || '(no hashtags provided)'}"
-- Target Niche: ${niche || 'General / Lifestyle'}
+- Caption: "${caption || '(none)'}"
+- Hashtags: "${hashtags || '(none)'}"
 
-### INSTRUCTIONS FOR SCORING
-- Do NOT just look at the technical stats. A video with 0 cuts can go viral if the storytelling is incredible.
-- A video with lots of cuts but no substance will flop. Grade based on SUBSTANCE, EMOTION, and VIRAL MECHANICS.
+### STRICT FORMATTING INSTRUCTIONS
+- KEEP IT SHORT! Do not write paragraphs. The creator will be overwhelmed.
+- All "strengths", "improvements", "top_3_wins", and "top_3_fixes" MUST be ultra-concise, punchy 1-liners (maximum 8-10 words per item).
+- "overall_summary" MUST be exactly 1 short sentence.
+- Grade based on SUBSTANCE and NICHE-FIT, not just technical stats.
 - Return EXACTLY this JSON structure, and nothing else.
 
 {
-  "transcript": "Your guess at the content/story based on visual context.",
+  "transcript": "1-sentence guess at the story.",
   "thumbnail_frame": 0,
   "hook": {
     "score": 7,
     "sub_scores": { "first_frame_clarity": 8, "motion_in_first_second": 7, "face_presence": 10, "text_overlay": 6, "pattern_interrupt": 7, "curiosity_gap": 6, "why_should_i_care": 7 },
-    "strengths": ["Advanced observation 1", "Advanced observation 2"],
-    "improvements": ["Advanced, highly specific tip 1", "Advanced tip 2"]
+    "strengths": ["Short 1-liner strength", "Another short strength"],
+    "improvements": ["Short 1-liner improvement", "Another short improvement"]
   },
   "retention": {
     "score": 6,
     "sub_scores": { "pacing": 7, "scene_variety": 6, "dead_air_risk": 8, "intro_length": 5, "payoff_timing": 6, "loopability": 5, "end_drop_risk": 6 },
-    "strengths": [],
-    "improvements": []
+    "strengths": ["Short 1-liner"],
+    "improvements": ["Short 1-liner"]
   },
   "visual_quality": {
     "score": 7,
     "sub_scores": { "brightness": 8, "sharpness": 7, "framing": 8, "background_clutter": 6, "camera_stability": 7, "color_temperature": 7, "face_visibility": 9 },
-    "strengths": [],
-    "improvements": []
+    "strengths": ["Short 1-liner"],
+    "improvements": ["Short 1-liner"]
   },
   "audio_quality": {
     "score": 7,
     "sub_scores": { "speech_clarity": 8, "loudness_level": 7, "background_noise": 7, "silence_gaps": 8, "music_vocal_balance": 6 },
-    "strengths": [],
-    "improvements": []
+    "strengths": ["Short 1-liner"],
+    "improvements": ["Short 1-liner"]
   },
   "content_structure": {
     "score": 6,
     "sub_scores": { "problem_solution_clarity": 6, "storytelling_arc": 7, "cta_presence": 5, "value_density": 7, "emotional_intensity": 6, "specificity": 6, "jargon_level": 8 },
-    "strengths": [],
-    "improvements": []
+    "strengths": ["Short 1-liner"],
+    "improvements": ["Short 1-liner"]
   },
   "editing": {
     "score": 7,
     "sub_scores": { "cut_rhythm": 7, "visual_variety": 6, "zoom_punch_in_usage": 5, "transition_smoothness": 8, "repetitive_frames": 7, "thumbnail_worthy_moment": 8 },
-    "strengths": [],
-    "improvements": []
+    "strengths": ["Short 1-liner"],
+    "improvements": ["Short 1-liner"]
   },
   "text_subtitles": {
     "score": 6,
     "sub_scores": { "subtitle_presence": 5, "readability": 7, "safe_zone_placement": 6, "text_contrast": 7, "font_size": 6 },
-    "strengths": [],
-    "improvements": []
+    "strengths": ["Short 1-liner"],
+    "improvements": ["Short 1-liner"]
   },
   "compliance": {
     "score": 9,
@@ -94,10 +96,10 @@ function buildVideoPrompt(computed, caption, hashtags, niche) {
     "warnings": [],
     "is_brand_safe": true
   },
-  "overall_summary": "A highly analytical 2-3 sentence assessment of this video's viral potential based on advanced psychology and algorithm dynamics.",
+  "overall_summary": "One very short sentence summarizing viral potential.",
   "predicted_performance": "below_average | average | above_average | viral_potential",
-  "top_3_wins": ["Win 1", "Win 2", "Win 3"],
-  "top_3_fixes": ["Fix 1", "Fix 2", "Fix 3"]
+  "top_3_wins": ["Ultra-short win 1", "Ultra-short win 2", "Ultra-short win 3"],
+  "top_3_fixes": ["Ultra-short fix 1", "Ultra-short fix 2", "Ultra-short fix 3"]
 }`;
 }
 
